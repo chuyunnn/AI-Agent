@@ -16,7 +16,7 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志文件输出的文件名 -->
-            <FileNamePattern>${LOG_HOME}/smartpai.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOG_HOME}/search-smart.%d{yyyy-MM-dd}.log</FileNamePattern>
             <!-- 日志文件保留天数 -->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -73,7 +73,7 @@
     </appender>
 
     <!-- 项目包日志级别配置 -->
-    <logger name="com.yizhaoqi.smartpai" level="INFO" additivity="false">
+    <logger name="com.yizhaoqi.searchSmart" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>
@@ -81,13 +81,13 @@
     </logger>
 
     <!-- 业务日志记录器 -->
-    <logger name="com.yizhaoqi.smartpai.business" level="INFO" additivity="false">
+    <logger name="com.yizhaoqi.searchSmart.business" level="INFO" additivity="false">
         <appender-ref ref="BUSINESS_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
     <!-- 性能日志记录器 -->
-    <logger name="com.yizhaoqi.smartpai.performance" level="INFO" additivity="false">
+    <logger name="com.yizhaoqi.searchSmart.performance" level="INFO" additivity="false">
         <appender-ref ref="PERFORMANCE_FILE"/>
     </logger>
 
@@ -113,14 +113,14 @@
 
     <!-- 开发环境配置 -->
     <springProfile name="dev">
-        <logger name="com.yizhaoqi.smartpai" level="DEBUG"/>
+        <logger name="com.yizhaoqi.searchSmart" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
     </springProfile>
 
     <!-- 生产环境配置 -->
     <springProfile name="prod">
-        <logger name="com.yizhaoqi.smartpai" level="INFO"/>
+        <logger name="com.yizhaoqi.searchSmart" level="INFO"/>
         <logger name="org.springframework" level="WARN"/>
         <logger name="root" level="WARN"/>
     </springProfile>

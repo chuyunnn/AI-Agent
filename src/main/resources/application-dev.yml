@@ -2,9 +2,9 @@ server:
   port: 8081 # 指定端口号
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/PaiSmart?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/search-smart?useSSL=false&serverTimezone=UTC
     username: root
-    password: GetGoodWork
+    password: CYunnn0808
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -43,7 +43,7 @@ spring:
         spring.json.trusted.packages: "*" # 允许反序列化的包
         client.dns.lookup: use_all_dns_ips
     topic:
-      file-processing: file-processing-topic1 # 新增的 Topic 配置
+      file-processing: file-processing-topic # 新增的 Topic 配置
       dlt: file-processing-dlt # 死信队列主题
   webflux:
     client:
@@ -82,7 +82,7 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.boot.autoconfigure.web.servlet: DEBUG
     org.springframework.security: DEBUG
-    com.yizhaoqi.smartpai.service: DEBUG
+    com.yizhaoqi.searchSmart.service: DEBUG
     io.minio: DEBUG
 
 log4j:
@@ -105,7 +105,7 @@ embedding:
     batch-size: 10  # 单次请求最大行数（DashScope限制为10）
     dimension: 2048  # 指定向量维度
 
-smartpai:
+searchsmart:
   agent:
     default-model-profile: deepseek
     stream-chunk-size: 120

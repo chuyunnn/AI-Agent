@@ -1,6 +1,6 @@
-# 高校科研知识库与AI Agent智能检索平台 - searchSmart
+# 高校科研知识库与AI Agent智能检索平台 - search-smart
 
-searchSmart⾯向⾼校科研团队，整合实验记录、论⽂、合同等多元⽂档资源，构建智能化学术知识库，解决研究资料分散、论⽂检索效率低、实验⽂档权限混乱等痛点，提供语义检索和智能问答⼀体化服务。
+search-smart⾯向⾼校科研团队，整合实验记录、论⽂、合同等多元⽂档资源，构建智能化学术知识库，解决研究资料分散、论⽂检索效率低、实验⽂档权限混乱等痛点，提供语义检索和智能问答⼀体化服务。
 该平台围绕“文档上传 -> 解析切片 -> 向量化 -> 混合检索 -> 大模型问答”构建了一套完整的 RAG 链路。项目后端使用 Spring Boot 3 + MySQL + Redis + Kafka + Elasticsearch + MinIO，前端使用 Vue 3 + TypeScript + Vite。
 
 当前仓库同时包含两套聊天能力：
@@ -71,7 +71,7 @@ searchSmart⾯向⾼校科研团队，整合实验记录、论⽂、合同等多
 ### 3.1 后端结构
 
 ```text
-src/main/java/com/yizhaoqi/smartpai/
+src/main/java/com/yizhaoqi/searchSmart/
 ├── agent/              # 新增的 Spring AI Agent 相关代码
 │   ├── dto/
 │   ├── model/
@@ -147,17 +147,17 @@ frontend/
 
 ### 5.1 后端配置
 
-- [application.yml](/Users/dcy/Documents/实习/PaiSmart-main/src/main/resources/application.yml)
-- [application-dev.yml](/Users/dcy/Documents/实习/PaiSmart-main/src/main/resources/application-dev.yml)
-- [application-docker.yml](/Users/dcy/Documents/实习/PaiSmart-main/src/main/resources/application-docker.yml)
+- [application.yml](/Users/dcy/Documents/实习/SearchSmart-main/src/main/resources/application.yml)
+- [application-dev.yml](/Users/dcy/Documents/实习/SearchSmart-main/src/main/resources/application-dev.yml)
+- [application-docker.yml](/Users/dcy/Documents/实习/SearchSmart-main/src/main/resources/application-docker.yml)
 
 ### 5.2 Docker 编排
 
-- [docker-compose.yaml](/Users/dcy/Documents/实习/PaiSmart-main/docs/docker-compose.yaml)
+- [docker-compose.yaml](/Users/dcy/Documents/实习/SearchSmart-main/docs/docker-compose.yaml)
 
 ### 5.3 数据库脚本
 
-- [ddl.sql](/Users/dcy/Documents/实习/PaiSmart-main/docs/databases/ddl.sql)
+- [ddl.sql](/Users/dcy/Documents/实习/SearchSmart-main/docs/databases/ddl.sql)
 
 ## 6. 启动前准备
 
@@ -230,7 +230,7 @@ mysql -uroot -p < docs/databases/ddl.sql
 
 ### 7.4 修改后端配置
 
-如果你打算配合 `docker-compose` 使用，建议优先检查 [application-docker.yml](/Users/dcy/Documents/实习/PaiSmart-main/src/main/resources/application-docker.yml)：
+如果你打算配合 `docker-compose` 使用，建议优先检查 [application-docker.yml](/Users/dcy/Documents/实习/searchSmart-main/src/main/resources/application-docker.yml)：
 
 - MySQL root 密码
 - Redis 密码
@@ -367,11 +367,11 @@ pnpm build
 
 ### 10.4 Agent 相关代码入口
 
-- [AgentChatService.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/smartpai/agent/service/AgentChatService.java)
-- [KnowledgeSearchTools.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/smartpai/agent/service/KnowledgeSearchTools.java)
-- [AgentModelRouter.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/smartpai/agent/service/AgentModelRouter.java)
-- [AgentPromptService.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/smartpai/agent/service/AgentPromptService.java)
-- [AgentWebSocketHandler.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/smartpai/handler/AgentWebSocketHandler.java)
+- [AgentChatService.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/searchSmart/agent/service/AgentChatService.java)
+- [KnowledgeSearchTools.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/searchSmart/agent/service/KnowledgeSearchTools.java)
+- [AgentModelRouter.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/searchSmart/agent/service/AgentModelRouter.java)
+- [AgentPromptService.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/searchSmart/agent/service/AgentPromptService.java)
+- [AgentWebSocketHandler.java](/Users/dcy/Documents/实习/PaiSmart-main/src/main/java/com/yizhaoqi/searchSmart/handler/AgentWebSocketHandler.java)
 
 ## 11. 启动后如何验证
 

@@ -74,8 +74,8 @@ pnpm preview
 
 ### Backend Structure
 ```
-src/main/java/com/yizhaoqi/smartpai/
-├── SmartPaiApplication.java      # Main application entry
+src/main/java/com/yizhaoqi/searchSmart/
+├── SearchSmartApplication.java      # Main application entry
 ├── client/                       # External API clients (DeepSeek, Embedding)
 ├── config/                       # Configuration classes (Security, JWT, etc.)
 ├── consumer/                     # Kafka consumers for async processing

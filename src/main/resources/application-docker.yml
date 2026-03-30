@@ -2,9 +2,9 @@ server:
   port: 8081 # 指定端口号
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/PaiSmart?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/search-smart?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: PaiSmart2025
+    password: CYunnn0808
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: PaiSmart2025
+#      password: PaiSmart2025
   servlet:
     multipart:
       enabled: true
@@ -55,8 +55,8 @@ spring:
 
 minio:
   endpoint: http://localhost:19000
-  accessKey: aHZtaNPEzLcERm9uCY2F
-  secretKey: 5lhyVdLKfMfYXtmdVsulLYpgCRx5EO1EfIWAtJdq
+  accessKey: dcy
+  secretKey: 12345678
   bucketName: uploads
   publicUrl: http://localhost:19000
 jwt:
@@ -80,7 +80,7 @@ elasticsearch:
   port: 9200            # Elasticsearch端口号
   scheme: http          # 协议（http/https）
   username: elastic     # 安装后生成的默认用户
-  password: PaiSmart2025
+  password: Ffg4_DbGPzsZvMkTctTx
 
 
 logging:
@@ -88,7 +88,7 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.boot.autoconfigure.web.servlet: DEBUG
     org.springframework.security: DEBUG
-    com.yizhaoqi.smartpai.service: DEBUG
+    com.yizhaoqi.searchSmart.service: DEBUG
     io.minio: DEBUG
 
 log4j:
@@ -129,7 +129,7 @@ ai:
     max-tokens: 2000
     top-p: 0.9
 
-smartpai:
+searchSmart:
   agent:
     default-model-profile: deepseek
     stream-chunk-size: 120

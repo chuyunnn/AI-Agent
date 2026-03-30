@@ -2,9 +2,9 @@ server:
   port: 8081 # 指定端口号
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/PaiSmart?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/search-smart?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: GetGoodWork
+    password: CYunnn0808
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -87,7 +87,7 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.boot.autoconfigure.web.servlet: DEBUG
     org.springframework.security: DEBUG
-    com.yizhaoqi.smartpai.service: DEBUG
+    com.yizhaoqi.searchSmart.service: DEBUG
     io.minio: DEBUG
 
 log4j:
@@ -127,7 +127,7 @@ ai:
     max-tokens: 2000
     top-p: 0.9
 
-smartpai:
+searchSmart:
   agent:
     default-model-profile: deepseek
     stream-chunk-size: 120

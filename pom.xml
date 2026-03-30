@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yizhaoqi</groupId>
-    <artifactId>SmartPAI</artifactId>
+    <artifactId>SearchSmart</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SmartPAI</name>
-    <description>SmartPAI</description>
+    <name>SearchSmart</name>
+    <description>SearchSmart</description>
     <url/>
     <licenses>
         <license/>
@@ -211,6 +211,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.yizhaoqi.searchSmart.SearchSmartApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
