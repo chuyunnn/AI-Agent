@@ -1,6 +1,7 @@
-# PaiSmart
+# 高校科研知识库与AI Agent智能检索平台 - searchSmart
 
-PaiSmart（派聪明）是一个企业级 AI 知识库系统，围绕“文档上传 -> 解析切片 -> 向量化 -> 混合检索 -> 大模型问答”构建了一套完整的 RAG 链路。项目后端使用 Spring Boot 3 + MySQL + Redis + Kafka + Elasticsearch + MinIO，前端使用 Vue 3 + TypeScript + Vite。
+searchSmart⾯向⾼校科研团队，整合实验记录、论⽂、合同等多元⽂档资源，构建智能化学术知识库，解决研究资料分散、论⽂检索效率低、实验⽂档权限混乱等痛点，提供语义检索和智能问答⼀体化服务。
+该平台围绕“文档上传 -> 解析切片 -> 向量化 -> 混合检索 -> 大模型问答”构建了一套完整的 RAG 链路。项目后端使用 Spring Boot 3 + MySQL + Redis + Kafka + Elasticsearch + MinIO，前端使用 Vue 3 + TypeScript + Vite。
 
 当前仓库同时包含两套聊天能力：
 
