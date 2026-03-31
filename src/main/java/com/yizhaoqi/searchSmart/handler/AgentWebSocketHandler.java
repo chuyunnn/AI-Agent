@@ -30,6 +30,9 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
         this.jwtUtils = jwtUtils;
     }
 
+    /*
+    * 从jwt中取出用户id
+    * */
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         String userId = extractUserId(session);
@@ -37,6 +40,11 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
         logger.info("Agent websocket connected, userId={}, sessionId={}", userId, session.getId());
     }
 
+    /*
+    * 解析用户消息
+    * 停止 ==> agentChatService.stopResponse() 处理
+    * 普通聊天 ==> agentChatService.processMessage() 处理
+    * */
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String userId = extractUserId(session);
@@ -57,6 +65,9 @@ public class AgentWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /*
+    * 关闭会话(关闭网页 / 连接断开)
+    * */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String userId = extractUserId(session);

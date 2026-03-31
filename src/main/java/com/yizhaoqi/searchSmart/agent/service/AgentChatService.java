@@ -74,11 +74,17 @@ public class AgentChatService {
         }
     }
 
+    /*
+    * 接收消息
+    * */
     public void processMessage(String userId, String userMessage, WebSocketSession session) {
         stopFlags.put(session.getId(), false);
         CompletableFuture.runAsync(() -> doProcessMessage(userId, userMessage, session));
     }
 
+    /*
+    *  停止回答
+    * */
     public void stopResponse(String userId, WebSocketSession session) {
         logger.info("Stop agent response, userId={}, sessionId={}", userId, session.getId());
         stopFlags.put(session.getId(), true);
@@ -90,39 +96,58 @@ public class AgentChatService {
     }
 
     private void doProcessMessage(String userId, String userMessage, WebSocketSession session) {
+        // 1. 把当前用户ID存入线程上下文（工具类需要知道当前是谁在提问）
         AgentToolContextHolder.setUserId(userId);
+        // 2. 获取/创建一个对话ID（同一个用户多次聊天，用同一个conversationId）
+        //    作用：实现上下文记忆，AI知道你之前问过什么
         String conversationId = conversationStateService.getOrCreateConversationId(userId);
         try {
+            // 3. 获取AI模型会话（选择用哪个大模型：豆包/通义/OpenAI等）
+                // 不是简单用chatclient，封装用于复杂agent操作
             AgentModelRouter.ModelSession modelSession = agentModelRouter.getDefaultSession();
+            // 4. 获取上一轮对话的快照（AI需要上下文才能连续聊天）
             LastChatResponseSnapshot lastSnapshot = conversationStateService.getLastResponse(conversationId);
+
+            // ======================= 核心 =======================
+            // 5. 执行AI智能体循环（调用AI + 自动调用工具查知识库）
+            //    返回最终答案、检索到的资料、引用记录等
+            // ====================================================
             AgentLoopResult loopResult = executeLoop(modelSession, conversationId, userMessage, lastSnapshot, session);
 
+            // 6. 检查用户是否点击了【停止】按钮，如果停止了，直接结束
             if (isStopped(session)) {
                 return;
             }
 
+            // 流式推送用户回答
             streamAnswer(session, loopResult.finalAnswer());
             if (isStopped(session)) {
                 return;
             }
 
+            // 9. 把【用户问题】和【AI回答】存入对话记忆库
+            //    下次提问时，AI能看到历史记录
             chatMemory.add(conversationId, new UserMessage(userMessage));
             chatMemory.add(conversationId, new AssistantMessage(loopResult.finalAnswer()));
 
+            // 10. 构建本次对话的完整快照（存起来，方便下次上下文使用）
             LastChatResponseSnapshot snapshot = new LastChatResponseSnapshot(
-                    conversationId,
-                    userId,
-                    userMessage,
-                    loopResult.finalAnswer(),
-                    loopResult.retrievedResults(),
-                    loopResult.citations(),
-                    loopResult.toolExecutions(),
-                    modelSession.profileName(),
-                    loopResult.iterationCount(),
-                    LocalDateTime.now().toString()
+                    conversationId, // 会话id
+                    userId, // 用户id
+                    userMessage, // 用户提问
+                    loopResult.finalAnswer(), // 用户回答
+                    loopResult.retrievedResults(), // 检索资料
+                    loopResult.citations(), // 资料引用
+                    loopResult.toolExecutions(), // 工具调用记录
+                    modelSession.profileName(), // 使用的ai模型
+                    loopResult.iterationCount(), // ai循环思考次数
+                    LocalDateTime.now().toString() // 时间
             );
+            // 11. 保存本次对话快照（下次聊天用）
             conversationStateService.saveLastResponse(conversationId, snapshot);
+            // 12. 把对话记录存入数据库（审计日志、后台可查看）
             saveAudit(snapshot);
+            // 返回消息给前端
             sendCompletionNotification(session);
         } catch (Exception e) {
             logger.error("Agent chat processing failed", e);
@@ -132,32 +157,41 @@ public class AgentChatService {
             stopFlags.remove(session.getId());
         }
     }
-
+    /*
+    *  执行循环
+    * */
     private AgentLoopResult executeLoop(AgentModelRouter.ModelSession modelSession,
                                         String conversationId,
                                         String userMessage,
-                                        LastChatResponseSnapshot lastSnapshot,
+                                        LastChatResponseSnapshot lastSnapshot, // 过去的回答，可以作为辅助，比如之前根据什么需求已经查到了什么结果
                                         WebSocketSession session) throws JsonProcessingException {
+        // 根据conversationId从chatmemory中拉取历史聊天记录
         List<Message> historyMessages = new ArrayList<>(chatMemory.get(conversationId));
+        // 【构建当前工作区】存放本次循环中产生的所有临时对话（包含 AI 调工具的过程）
         List<Message> workingMessages = new ArrayList<>();
         workingMessages.add(new UserMessage(userMessage));
 
+        // 存储搜索到的知识库碎片、工具执行情况等中间结果
         List<KnowledgeSearchHit> retrievedResults = new ArrayList<>();
         List<ToolExecutionSummary> toolExecutions = new ArrayList<>();
-        AssistantMessage finalAssistant = null;
+        AssistantMessage finalAssistant = null; // 最终存放在这里的才是给用户的答案
+        // 3. 【设置循环上限】防止 AI 陷入死循环（3次）
         int maxIterations = Math.max(agentProperties.getLoop().getMaxIterations(), 1);
         int iterationCount = 0;
 
         for (int iteration = 1; iteration <= maxIterations; iteration++) {
+            // 是否停止
             ensureNotStopped(session);
             iterationCount = iteration;
 
+            // 构建提示词
             String systemPrompt = agentPromptService.buildSystemPrompt(
                     lastSnapshot,
                     toolExecutions,
                     false,
                     iteration,
                     maxIterations);
+            // 调用大模型
             ChatResponse response = modelSession.chatModel().call(new Prompt(
                     buildPromptMessages(systemPrompt, historyMessages, workingMessages),
                     buildToolEnabledOptions(modelSession)));
@@ -168,7 +202,7 @@ public class AgentChatService {
             if (assistantMessage == null) {
                 break;
             }
-
+            // 判断返回是否有工具
             if (assistantMessage.hasToolCalls() && iteration < maxIterations) {
                 workingMessages.add(assistantMessage);
                 ToolExecutionBatch batch = executeToolCalls(assistantMessage);
@@ -187,6 +221,7 @@ public class AgentChatService {
             break;
         }
 
+        // 兜底回复（如果llm什么都没有生成）
         if (finalAssistant == null || !StringUtils.hasText(finalAssistant.getText())) {
             String fallbackText = retrievedResults.isEmpty()
                     ? "暂无相关信息，当前知识库中没有检索到足够证据支持回答。"
@@ -243,6 +278,9 @@ public class AgentChatService {
                 .build();
     }
 
+    /*
+    * 执行工具调用
+    * */
     private ToolExecutionBatch executeToolCalls(AssistantMessage assistantMessage) throws JsonProcessingException {
         List<ToolResponseMessage.ToolResponse> toolResponses = new ArrayList<>();
         List<ToolExecutionSummary> executionSummaries = new ArrayList<>();
@@ -311,6 +349,9 @@ public class AgentChatService {
         return citations;
     }
 
+    /*
+    *  记录对话日志
+    * */
     private void saveAudit(LastChatResponseSnapshot snapshot) throws JsonProcessingException {
         AgentConversationAudit audit = new AgentConversationAudit();
         audit.setConversationId(snapshot.getConversationId());
@@ -325,11 +366,14 @@ public class AgentChatService {
         auditRepository.save(audit);
     }
 
+    /*
+    * 流式输出结果
+    * */
     private void streamAnswer(WebSocketSession session, String answer) {
         if (!StringUtils.hasText(answer)) {
             return;
         }
-        int chunkSize = Math.max(agentProperties.getStreamChunkSize(), 1);
+        int chunkSize = Math.max(agentProperties.getStreamChunkSize(), 1); // 120
         for (int index = 0; index < answer.length(); index += chunkSize) {
             if (isStopped(session)) {
                 return;
@@ -383,6 +427,9 @@ public class AgentChatService {
         sendJson(session, payload);
     }
 
+    /*
+    *   异常处理
+    * */
     private void handleError(WebSocketSession session, Throwable error) {
         if (error instanceof AgentStoppedException) {
             return;

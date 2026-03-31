@@ -16,7 +16,7 @@ import java.util.Locale;
 @Component
 public class KnowledgeSearchTools {
 
-    public static final int DEFAULT_TOP_K = 10;
+    public static final int DEFAULT_TOP_K = 10; // 默认返回10条
     private static final int MAX_SNIPPET_LENGTH = 400;
 
     private final HybridSearchService hybridSearchService;
@@ -35,23 +35,26 @@ public class KnowledgeSearchTools {
             return new KnowledgeSearchToolResponse(query, topK, "查询内容为空，未执行检索", List.of());
         }
 
+        // 扩大窗口为3倍，提高检索精度
         int searchWindow = Math.max(topK * 3, DEFAULT_TOP_K);
+        // 带权限过滤
         List<SearchResult> rawResults = hybridSearchService.searchWithPermission(query, userId, searchWindow);
 
+        // 过滤和格式化结果
         List<KnowledgeSearchHit> hits = new ArrayList<>();
         for (SearchResult result : rawResults) {
             if (!matchesOptionalFilters(result, request)) {
                 continue;
             }
             hits.add(new KnowledgeSearchHit(
-                    hits.size() + 1,
-                    result.getFileName(),
-                    result.getFileMd5(),
-                    result.getChunkId(),
-                    abbreviate(result.getTextContent()),
-                    result.getScore(),
-                    result.getOrgTag(),
-                    result.getIsPublic()));
+                    hits.size() + 1, // 索引号
+                    result.getFileName(), // 文件名
+                    result.getFileMd5(), // 文件MD5
+                    result.getChunkId(), // 文本块ID
+                    abbreviate(result.getTextContent()), // 内容截断400字
+                    result.getScore(), // 相关性分数
+                    result.getOrgTag(), // 组织标签
+                    result.getIsPublic())); // 是否公开
             if (hits.size() >= topK) {
                 break;
             }
