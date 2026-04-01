@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.setHeader("New-Token", newToken);
                 }
                 
-                // 设置用户认证信息
+                // 设置用户认证信息，转换为Spring security的认证上下文（存到threadlocal中）
                 if (username != null && !username.isEmpty()) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
